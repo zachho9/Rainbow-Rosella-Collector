@@ -1,0 +1,15 @@
+.rosella {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 70px;
+  height: 70px;
+  font-size: 64px;
+  line-height: 70px;
+  text-align: center;
+  pointer-events: none;
+  z-index: 20;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  user-select: none;
+  will-change: transform;
+}
