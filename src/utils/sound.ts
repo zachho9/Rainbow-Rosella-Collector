@@ -26,11 +26,15 @@ export function playSound(key: SoundKey, muted: boolean): void {
   if (!src) return
   if (key === 'music') {
     src.currentTime = 0
-    src.play().catch(() => {})
+    src.play().catch((e) => {
+      if (import.meta.env.DEV) console.warn('[sound] play failed:', key, e)
+    })
     return
   }
   const clone = src.cloneNode() as HTMLAudioElement
-  clone.play().catch(() => {})
+  clone.play().catch((e) => {
+    if (import.meta.env.DEV) console.warn('[sound] play failed:', key, e)
+  })
 }
 
 export function stopSound(key: SoundKey): void {
