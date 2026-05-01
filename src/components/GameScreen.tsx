@@ -116,6 +116,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
   const handleBubblePop = useCallback(() => {
     const b = bubbleRef.current
     if (!b || b.fading) return
+    bubbleRef.current = null  // prevent double-pop before React re-renders
     playSound('bubble-pop', mutedRef.current)
     setBubble(null)
     // Spawn 3–5 heart/star collectibles around bubble position
@@ -168,6 +169,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
     // Bubble expiry check
     const b = bubbleRef.current
     if (b && !b.fading && Date.now() - b.spawnedAt >= BUBBLE_EXPIRE_MS) {
+      bubbleRef.current = { ...b, fading: true }  // break re-entry immediately
       setBubble(prev => prev ? { ...prev, fading: true } : null)
       setTimeout(() => { if (mountedRef.current) setBubble(null) }, 500)
     }
