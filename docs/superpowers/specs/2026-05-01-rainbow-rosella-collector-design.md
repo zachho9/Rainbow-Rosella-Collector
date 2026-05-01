@@ -52,7 +52,7 @@ ResultsScreen  →(Home)→  StartScreen
 - `rosellaPos: {x, y}` — current interpolated position
 - `mousePos: {x, y}` — live cursor coordinates from `mousemove`
 - `rafId: number` — animation frame handle for cleanup
-- `collectiblesRef` — mirror of collectibles state, kept in sync for collision reads without stale closure issues
+- `collectiblesRef` — mirror of collectibles state, kept in sync via `useEffect(() => { collectiblesRef.current = collectibles }, [collectibles])` — allows stale-closure-free collision reads in the rAF callback
 - `mutedRef: boolean` — mute state; avoiding re-renders on toggle
 
 ### Component Tree
@@ -120,7 +120,8 @@ type Particle = {
   x: number            // px — absolute spawn position
   y: number
   angle: number        // radians — direction of travel
-  emoji: string        // '✨' | '⭐' | coloured circle
+  symbol: string       // '✨' | '⭐' | 'circle' (rendered as CSS div)
+  color?: string       // pastel hex — used when symbol === 'circle'
   duration: number     // ms — removed from state after this
 }
 ```
