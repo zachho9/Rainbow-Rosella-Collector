@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import type { CSSProperties } from 'react'
 import styles from './Background.module.css'
 
 const CLOUDS = [
@@ -14,7 +15,7 @@ export default memo(function Background() {
     <div className={styles.bg}>
       <div className={styles.sky} />
       {CLOUDS.map((c, i) => (
-        <div key={i} className={styles.cloud} style={c as React.CSSProperties} />
+        <div key={i} className={styles.cloud} style={c as CSSProperties} />
       ))}
       <div className={styles.grass} />
       <div className={styles.grassShadow} />
