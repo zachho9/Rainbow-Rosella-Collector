@@ -1,4 +1,8 @@
+import { useState } from 'react'
 import type { MutableRefObject } from 'react'
+import Background from './Background'
+import { playSound } from '../utils/sound'
+import styles from './StartScreen.module.css'
 
 interface Props {
   highScore: number
@@ -6,10 +10,31 @@ interface Props {
   onPlay: () => void
 }
 
-export default function StartScreen({ onPlay }: Props) {
+export default function StartScreen({ highScore, mutedRef, onPlay }: Props) {
+  const [muted, setMuted] = useState(mutedRef.current)
+
+  const toggleMute = () => {
+    mutedRef.current = !mutedRef.current
+    setMuted(mutedRef.current)
+  }
+
+  const handlePlay = () => {
+    playSound('game-start', mutedRef.current)
+    onPlay()
+  }
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-      <button onClick={onPlay} style={{ fontSize: 32, padding: '16px 40px' }}>▶ Play</button>
-    </div>
+    <>
+      <Background />
+      <div className={styles.screen}>
+        <button className={styles.muteBtn} onClick={toggleMute} aria-label="Toggle sound">
+          {muted ? '🔇' : '🔊'}
+        </button>
+        <div className={styles.highScore}>Best: {highScore} ⭐</div>
+        <h1 className={styles.title}>Rainbow Rosella</h1>
+        <div className={styles.mascot}>🦜</div>
+        <button className={styles.playBtn} onClick={handlePlay}>▶ Play!</button>
+      </div>
+    </>
   )
 }
