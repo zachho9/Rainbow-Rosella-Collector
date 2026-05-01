@@ -5,12 +5,13 @@ import Rosella from './Rosella'
 import TimerBar from './TimerBar'
 import ScoreDisplay from './ScoreDisplay'
 import CollectibleItem from './Collectible'
+import BubbleComponent from './Bubble'
 import { useMousePosition } from '../hooks/useMousePosition'
 import { useGameLoop } from '../hooks/useGameLoop'
 import { isColliding } from '../utils/collision'
 import { pickCollectibleType, spawnPosition } from '../utils/spawn'
 import { playSound, stopSound } from '../utils/sound'
-import type { Collectible } from '../types/game'
+import type { Collectible, Bubble, CollectibleType } from '../types/game'
 
 const LERP = 0.18
 const GAME_DURATION = 60
@@ -19,17 +20,17 @@ const COLLECTIBLE_RADIUS = 30
 const INITIAL_COUNT = 10
 const MAX_COLLECTIBLES = 12
 const SPAWN_DELAY = () => 500 + Math.random() * 500
+const BUBBLE_EXPIRE_MS = 8000
+const BUBBLE_INTERVAL_MIN = 10000
+const BUBBLE_INTERVAL_RANGE = 5000
 
 function rid() { return Math.random().toString(36).slice(2, 10) }
 
 function makeCollectible(existing: Collectible[], rosX: number, rosY: number): Collectible {
   const { type, points } = pickCollectibleType()
   const { x, y } = spawnPosition({
-    existing,
-    rosellaX: rosX,
-    rosellaY: rosY,
-    vpW: window.innerWidth,
-    vpH: window.innerHeight,
+    existing, rosellaX: rosX, rosellaY: rosY,
+    vpW: window.innerWidth, vpH: window.innerHeight,
   })
   return { id: rid(), type, x, y, points }
 }
@@ -43,6 +44,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
   const [score, setScore] = useState(0)
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION)
   const [collectibles, setCollectibles] = useState<Collectible[]>([])
+  const [bubble, setBubble] = useState<Bubble | null>(null)
   const [active, setActive] = useState(true)
 
   const rosellaRef = useRef<HTMLDivElement>(null)
@@ -51,28 +53,50 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
   const scoreRef = useRef(0)
   const activeRef = useRef(true)
   const collectiblesRef = useRef<Collectible[]>([])
+  const bubbleRef = useRef<Bubble | null>(null)
   const collectingIds = useRef(new Set<string>())
   const mountedRef = useRef(true)
+  const bubbleTimeoutRef = useRef<ReturnType<typeof setTimeout>>()
 
   useEffect(() => () => { mountedRef.current = false }, [])
-
-  // Keep collectiblesRef in sync for stale-closure-free collision reads in rAF
   useEffect(() => { collectiblesRef.current = collectibles }, [collectibles])
+  useEffect(() => { bubbleRef.current = bubble }, [bubble])
 
   // Initial spawn
   useEffect(() => {
     const initial: Collectible[] = []
-    for (let i = 0; i < INITIAL_COUNT; i++) {
-      initial.push(makeCollectible(initial, 50, 50))
-    }
+    for (let i = 0; i < INITIAL_COUNT; i++) initial.push(makeCollectible(initial, 50, 50))
     setCollectibles(initial)
   }, [])
 
-  // Start BGM
+  // BGM
   useEffect(() => {
     playSound('music', mutedRef.current)
     return () => stopSound('music')
   }, [mutedRef])
+
+  // Bubble spawn scheduler
+  useEffect(() => {
+    if (!active) return
+    const schedule = () => {
+      const delay = BUBBLE_INTERVAL_MIN + Math.random() * BUBBLE_INTERVAL_RANGE
+      bubbleTimeoutRef.current = setTimeout(() => {
+        if (!mountedRef.current) return
+        if (!bubbleRef.current) {
+          setBubble({
+            id: rid(),
+            x: 12 + Math.random() * 76,
+            y: 18 + Math.random() * 60,
+            spawnedAt: Date.now(),
+            fading: false,
+          })
+        }
+        schedule()
+      }, delay)
+    }
+    schedule()
+    return () => clearTimeout(bubbleTimeoutRef.current)
+  }, [active])
 
   const spawnReplacement = useCallback(() => {
     setTimeout(() => {
@@ -89,10 +113,31 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
     }, SPAWN_DELAY())
   }, [])
 
+  const handleBubblePop = useCallback(() => {
+    const b = bubbleRef.current
+    if (!b || b.fading) return
+    playSound('bubble-pop', mutedRef.current)
+    setBubble(null)
+    // Spawn 3–5 heart/star collectibles around bubble position
+    const count = 3 + Math.floor(Math.random() * 3)
+    setCollectibles(prev => {
+      const burst: Collectible[] = Array.from({ length: count }, () => {
+        const type: CollectibleType = Math.random() < 0.5 ? 'heart' : 'star'
+        return {
+          id: rid(),
+          type,
+          points: type === 'heart' ? 1 : 3,
+          x: Math.min(92, Math.max(8, b.x + (Math.random() - 0.5) * 14)),
+          y: Math.min(82, Math.max(15, b.y + (Math.random() - 0.5) * 14)),
+        }
+      })
+      return [...prev.slice(0, MAX_COLLECTIBLES - count), ...burst]
+    })
+  }, [mutedRef])
+
   const tick = useCallback(() => {
     if (!activeRef.current) return
 
-    // Move rosella via lerp
     const target = mousePos.current
     const pos = rosellaPos.current
     pos.x += (target.x - pos.x) * LERP
@@ -102,7 +147,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
         `translate(${Math.round(pos.x - 35)}px, ${Math.round(pos.y - 35)}px)`
     }
 
-    // Collision detection against ref mirror
+    // Collision
     const rosX = pos.x
     const rosY = pos.y
     for (const item of collectiblesRef.current) {
@@ -119,11 +164,18 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
         setTimeout(() => collectingIds.current.delete(item.id), 1500)
       }
     }
+
+    // Bubble expiry check
+    const b = bubbleRef.current
+    if (b && !b.fading && Date.now() - b.spawnedAt >= BUBBLE_EXPIRE_MS) {
+      setBubble(prev => prev ? { ...prev, fading: true } : null)
+      setTimeout(() => { if (mountedRef.current) setBubble(null) }, 500)
+    }
   }, [mousePos, mutedRef, spawnReplacement])
 
   useGameLoop(tick, active)
 
-  // Countdown tick — pure updater
+  // Countdown tick
   useEffect(() => {
     if (!active) return
     const id = setInterval(() => {
@@ -132,7 +184,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
     return () => clearInterval(id)
   }, [active])
 
-  // End-game trigger — fires when timer hits 0
+  // End-game trigger
   useEffect(() => {
     if (timeLeft > 0) return
     activeRef.current = false
@@ -150,6 +202,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
       <TimerBar timeLeft={timeLeft} />
       <ScoreDisplay score={score} />
       {collectibles.map(c => <CollectibleItem key={c.id} collectible={c} />)}
+      {bubble && <BubbleComponent bubble={bubble} onClick={handleBubblePop} />}
       <Rosella ref={rosellaRef} />
     </div>
   )
