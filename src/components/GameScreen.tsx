@@ -6,12 +6,14 @@ import TimerBar from './TimerBar'
 import ScoreDisplay from './ScoreDisplay'
 import CollectibleItem from './Collectible'
 import BubbleComponent from './Bubble'
+import ParticleEffect from './ParticleEffect'
 import { useMousePosition } from '../hooks/useMousePosition'
 import { useGameLoop } from '../hooks/useGameLoop'
 import { isColliding } from '../utils/collision'
 import { pickCollectibleType, spawnPosition } from '../utils/spawn'
+import { spawnCollectSparkle, spawnBubbleConfetti } from '../utils/particles'
 import { playSound, stopSound } from '../utils/sound'
-import type { Collectible, Bubble, CollectibleType } from '../types/game'
+import type { Collectible, Bubble, Particle, CollectibleType } from '../types/game'
 
 const LERP = 0.18
 const GAME_DURATION = 60
@@ -45,6 +47,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION)
   const [collectibles, setCollectibles] = useState<Collectible[]>([])
   const [bubble, setBubble] = useState<Bubble | null>(null)
+  const [particles, setParticles] = useState<Particle[]>([])
   const [active, setActive] = useState(true)
 
   const rosellaRef = useRef<HTMLDivElement>(null)
@@ -62,20 +65,27 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
   useEffect(() => { collectiblesRef.current = collectibles }, [collectibles])
   useEffect(() => { bubbleRef.current = bubble }, [bubble])
 
-  // Initial spawn
   useEffect(() => {
     const initial: Collectible[] = []
     for (let i = 0; i < INITIAL_COUNT; i++) initial.push(makeCollectible(initial, 50, 50))
     setCollectibles(initial)
   }, [])
 
-  // BGM
   useEffect(() => {
     playSound('music', mutedRef.current)
     return () => stopSound('music')
   }, [mutedRef])
 
-  // Bubble spawn scheduler
+  const addParticles = useCallback((newPs: Particle[]) => {
+    setParticles(prev => [...prev, ...newPs])
+    const maxDuration = Math.max(...newPs.map(p => p.duration))
+    setTimeout(() => {
+      if (!mountedRef.current) return
+      const ids = new Set(newPs.map(p => p.id))
+      setParticles(prev => prev.filter(p => !ids.has(p.id)))
+    }, maxDuration + 50)
+  }, [])
+
   useEffect(() => {
     if (!active) return
     const schedule = () => {
@@ -118,27 +128,26 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
     if (!b || b.fading) return
     bubbleRef.current = null  // prevent double-pop before React re-renders
     playSound('bubble-pop', mutedRef.current)
+    const bx = (b.x / 100) * window.innerWidth
+    const by = (b.y / 100) * window.innerHeight
+    addParticles(spawnBubbleConfetti(bx, by))
     setBubble(null)
-    // Spawn 3–5 heart/star collectibles around bubble position
     const count = 3 + Math.floor(Math.random() * 3)
     setCollectibles(prev => {
       const burst: Collectible[] = Array.from({ length: count }, () => {
         const type: CollectibleType = Math.random() < 0.5 ? 'heart' : 'star'
         return {
-          id: rid(),
-          type,
-          points: type === 'heart' ? 1 : 3,
+          id: rid(), type, points: type === 'heart' ? 1 : 3,
           x: Math.min(92, Math.max(8, b.x + (Math.random() - 0.5) * 14)),
           y: Math.min(82, Math.max(15, b.y + (Math.random() - 0.5) * 14)),
         }
       })
       return [...prev.slice(0, MAX_COLLECTIBLES - count), ...burst]
     })
-  }, [mutedRef])
+  }, [mutedRef, addParticles])
 
   const tick = useCallback(() => {
     if (!activeRef.current) return
-
     const target = mousePos.current
     const pos = rosellaPos.current
     pos.x += (target.x - pos.x) * LERP
@@ -148,7 +157,6 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
         `translate(${Math.round(pos.x - 35)}px, ${Math.round(pos.y - 35)}px)`
     }
 
-    // Collision
     const rosX = pos.x
     const rosY = pos.y
     for (const item of collectiblesRef.current) {
@@ -158,6 +166,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
       if (isColliding(rosX, rosY, ROSELLA_RADIUS, itemX, itemY, COLLECTIBLE_RADIUS)) {
         collectingIds.current.add(item.id)
         playSound('collect', mutedRef.current)
+        addParticles(spawnCollectSparkle(itemX, itemY))
         const pts = item.points
         setScore(s => { scoreRef.current = s + pts; return s + pts })
         setCollectibles(prev => prev.filter(c => c.id !== item.id))
@@ -166,18 +175,16 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
       }
     }
 
-    // Bubble expiry check
     const b = bubbleRef.current
     if (b && !b.fading && Date.now() - b.spawnedAt >= BUBBLE_EXPIRE_MS) {
       bubbleRef.current = { ...b, fading: true }  // break re-entry immediately
       setBubble(prev => prev ? { ...prev, fading: true } : null)
       setTimeout(() => { if (mountedRef.current) setBubble(null) }, 500)
     }
-  }, [mousePos, mutedRef, spawnReplacement])
+  }, [mousePos, mutedRef, spawnReplacement, addParticles])
 
   useGameLoop(tick, active)
 
-  // Countdown tick
   useEffect(() => {
     if (!active) return
     const id = setInterval(() => {
@@ -186,7 +193,6 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
     return () => clearInterval(id)
   }, [active])
 
-  // End-game trigger
   useEffect(() => {
     if (timeLeft > 0) return
     activeRef.current = false
@@ -205,6 +211,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
       <ScoreDisplay score={score} />
       {collectibles.map(c => <CollectibleItem key={c.id} collectible={c} />)}
       {bubble && <BubbleComponent bubble={bubble} onClick={handleBubblePop} />}
+      <ParticleEffect particles={particles} />
       <Rosella ref={rosellaRef} />
     </div>
   )
