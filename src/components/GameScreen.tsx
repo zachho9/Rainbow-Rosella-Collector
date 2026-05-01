@@ -45,7 +45,11 @@ interface Props {
 export default function GameScreen({ mutedRef, onGameEnd }: Props) {
   const [score, setScore] = useState(0)
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION)
-  const [collectibles, setCollectibles] = useState<Collectible[]>([])
+  const [collectibles, setCollectibles] = useState<Collectible[]>(() => {
+    const initial: Collectible[] = []
+    for (let i = 0; i < INITIAL_COUNT; i++) initial.push(makeCollectible(initial, 50, 50))
+    return initial
+  })
   const [bubble, setBubble] = useState<Bubble | null>(null)
   const [particles, setParticles] = useState<Particle[]>([])
   const [active, setActive] = useState(true)
@@ -64,12 +68,6 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
   useEffect(() => () => { mountedRef.current = false }, [])
   useEffect(() => { collectiblesRef.current = collectibles }, [collectibles])
   useEffect(() => { bubbleRef.current = bubble }, [bubble])
-
-  useEffect(() => {
-    const initial: Collectible[] = []
-    for (let i = 0; i < INITIAL_COUNT; i++) initial.push(makeCollectible(initial, 50, 50))
-    setCollectibles(initial)
-  }, [])
 
   useEffect(() => {
     playSound('music', mutedRef.current)
@@ -196,7 +194,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
   useEffect(() => {
     if (timeLeft > 0) return
     activeRef.current = false
-    setActive(false)
+    Promise.resolve().then(() => setActive(false))
     const tid = setTimeout(() => {
       playSound('game-end', mutedRef.current)
       onGameEnd(scoreRef.current)

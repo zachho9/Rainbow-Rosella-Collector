@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default function StartScreen({ highScore, mutedRef, onPlay }: Props) {
-  const [muted, setMuted] = useState(mutedRef.current)
+  const [muted, setMuted] = useState(mutedRef.current) // eslint-disable-line react-hooks/refs
 
   const toggleMute = () => {
     mutedRef.current = !mutedRef.current

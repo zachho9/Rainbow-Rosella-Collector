@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import type { Particle } from '../types/game'
 import styles from './ParticleEffect.module.css'
 
@@ -28,7 +29,7 @@ export default function ParticleEffect({ particles }: Props) {
                 ? { width: 12, height: 12, borderRadius: '50%', background: p.color ?? '#FFD93D' }
                 : { fontSize: 20 }
               ),
-            } as any}
+            } as CSSProperties & Record<string, string | number>}
           >
             {!isCircle ? p.symbol : ''}
           </div>
