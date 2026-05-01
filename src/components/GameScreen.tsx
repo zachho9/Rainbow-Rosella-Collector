@@ -47,24 +47,26 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
 
   useGameLoop(tick, active)
 
+  // Countdown tick — pure updater, no side effects
   useEffect(() => {
+    if (!active) return
     const id = setInterval(() => {
-      setTimeLeft(t => {
-        if (t <= 1) {
-          clearInterval(id)
-          activeRef.current = false
-          setActive(false)
-          setTimeout(() => {
-            playSound('game-end', mutedRef.current)
-            onGameEnd(scoreRef.current)
-          }, 300)
-          return 0
-        }
-        return t - 1
-      })
+      setTimeLeft(t => (t <= 1 ? 0 : t - 1))
     }, 1000)
     return () => clearInterval(id)
-  }, [onGameEnd, mutedRef])
+  }, [active])
+
+  // End-game trigger — fires once when timer hits 0
+  useEffect(() => {
+    if (timeLeft > 0) return
+    activeRef.current = false
+    setActive(false)
+    const tid = setTimeout(() => {
+      playSound('game-end', mutedRef.current)
+      onGameEnd(scoreRef.current)
+    }, 300)
+    return () => clearTimeout(tid)
+  }, [timeLeft, mutedRef, onGameEnd])
 
   return (
     <div style={{ position: 'fixed', inset: 0 }}>
