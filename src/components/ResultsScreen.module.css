@@ -1,0 +1,134 @@
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  z-index: 10;
+}
+
+.confettiRow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 14px 40px;
+  pointer-events: none;
+}
+
+.confettiRow span {
+  font-size: 26px;
+  animation: confettiFall 3s ease-in-out infinite;
+}
+
+@keyframes confettiFall {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  50%       { transform: translateY(22px) rotate(180deg); opacity: 0.6; }
+}
+
+.heading {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(32px, 5vw, 60px);
+  color: #2C3E50;
+  text-shadow: 0 3px 0 rgba(255, 255, 255, 0.6);
+}
+
+.mascot {
+  font-size: clamp(70px, 10vw, 110px);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+  animation: bounce 1s ease-in-out infinite;
+  user-select: none;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-12px); }
+}
+
+.scorePill {
+  background: white;
+  border-radius: 24px;
+  padding: 14px 36px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.scoreLabel {
+  font-size: 15px;
+  color: #888;
+}
+
+.scoreValue {
+  font-size: 40px;
+  font-weight: 900;
+  color: #2C3E50;
+}
+
+.newHighScore {
+  background: #FFD93D;
+  border-radius: 16px;
+  padding: 8px 22px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #2C3E50;
+  box-shadow: 0 3px 0 #E6B82E;
+  animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+@keyframes pop {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.bestScore {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2C3E50;
+  opacity: 0.65;
+}
+
+.playAgainBtn {
+  font-family: 'Fredoka One', cursive;
+  font-size: 26px;
+  color: #fff;
+  background: #FF8FA3;
+  border: none;
+  border-radius: 28px;
+  padding: 14px 44px;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #E66B82;
+  user-select: none;
+  transition: transform 0.08s;
+}
+
+.playAgainBtn:active {
+  box-shadow: none;
+  transform: translateY(6px);
+}
+
+.homeBtn {
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #2C3E50;
+  background: #FFD93D;
+  border: none;
+  border-radius: 24px;
+  padding: 10px 30px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #E6B82E;
+  user-select: none;
+  transition: transform 0.08s;
+}
+
+.homeBtn:active {
+  box-shadow: none;
+  transform: translateY(4px);
+}
