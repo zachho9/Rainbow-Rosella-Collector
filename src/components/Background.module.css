@@ -1,0 +1,53 @@
+.bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #B8E5F5 0%, #E0F4FA 100%);
+}
+
+.cloud {
+  position: absolute;
+  background: #ffffff;
+  border-radius: 50px;
+  opacity: 0.95;
+}
+
+.grassShadow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: #7BC04A;
+  border-radius: 60% 60% 0 0 / 20px 20px 0 0;
+}
+
+.grass {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: #A8D86E;
+  border-radius: 60% 60% 0 0 / 40px 40px 0 0;
+}
+
+.flowers {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.flowers span {
+  position: absolute;
+  font-size: 20px;
+  pointer-events: none;
+  user-select: none;
+}
