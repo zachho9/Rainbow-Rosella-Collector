@@ -1,5 +1,4 @@
 import type { Particle } from '../types/game'
-import type { CSSProperties } from 'react'
 import styles from './ParticleEffect.module.css'
 
 const TRAVEL_COLLECT = 55
@@ -29,7 +28,7 @@ export default function ParticleEffect({ particles }: Props) {
                 ? { width: 12, height: 12, borderRadius: '50%', background: p.color ?? '#FFD93D' }
                 : { fontSize: 20 }
               ),
-            } as CSSProperties}
+            } as any}
           >
             {!isCircle ? p.symbol : ''}
           </div>

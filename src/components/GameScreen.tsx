@@ -59,7 +59,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
   const bubbleRef = useRef<Bubble | null>(null)
   const collectingIds = useRef(new Set<string>())
   const mountedRef = useRef(true)
-  const bubbleTimeoutRef = useRef<ReturnType<typeof setTimeout>>()
+  const bubbleTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   useEffect(() => () => { mountedRef.current = false }, [])
   useEffect(() => { collectiblesRef.current = collectibles }, [collectibles])
