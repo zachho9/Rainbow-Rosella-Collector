@@ -11,9 +11,10 @@ import { useMousePosition } from '../hooks/useMousePosition'
 import { useGameLoop } from '../hooks/useGameLoop'
 import { isColliding } from '../utils/collision'
 import { pickCollectibleType, spawnPosition } from '../utils/spawn'
-import { spawnCollectSparkle, spawnBubbleConfetti } from '../utils/particles'
+import ScorePopupEffect from './ScorePopupEffect'
+import { spawnCollectSparkle, spawnBubbleConfetti, spawnScorePopup } from '../utils/particles'
 import { playSound } from '../utils/sound'
-import type { Collectible, Bubble, Particle, CollectibleType } from '../types/game'
+import type { Collectible, Bubble, Particle, ScorePopup, CollectibleType } from '../types/game'
 
 const LERP = 0.18
 const GAME_DURATION = 60
@@ -53,6 +54,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
   })
   const [bubble, setBubble] = useState<Bubble | null>(null)
   const [particles, setParticles] = useState<Particle[]>([])
+  const [scorePopups, setScorePopups] = useState<ScorePopup[]>([])
   const [active, setActive] = useState(true)
 
   const rosellaRef = useRef<HTMLDivElement>(null)
@@ -82,6 +84,14 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
       const ids = new Set(newPs.map(p => p.id))
       setParticles(prev => prev.filter(p => !ids.has(p.id)))
     }, maxDuration + 50)
+  }, [])
+
+  const addScorePopup = useCallback((popup: ScorePopup) => {
+    setScorePopups(prev => [...prev, popup])
+    setTimeout(() => {
+      if (!mountedRef.current) return
+      setScorePopups(prev => prev.filter(p => p.id !== popup.id))
+    }, popup.duration + 50)
   }, [])
 
   useEffect(() => {
@@ -177,6 +187,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
         collectingIds.current.add(item.id)
         playSound('collect', mutedRef.current)
         addParticles(spawnCollectSparkle(itemX, itemY))
+        addScorePopup(spawnScorePopup(itemX, itemY, item.points))
         const pts = item.points
         setScore(s => { scoreRef.current = s + pts; return s + pts })
         setCollectibles(prev => prev.filter(c => c.id !== item.id))
@@ -191,7 +202,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
       setBubble(prev => prev ? { ...prev, fading: true } : null)
       setTimeout(() => { if (mountedRef.current) setBubble(null) }, 500)
     }
-  }, [mousePos, mutedRef, spawnReplacement, addParticles])
+  }, [mousePos, mutedRef, spawnReplacement, addParticles, addScorePopup])
 
   useGameLoop(tick, active)
 
@@ -222,6 +233,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
       {collectibles.map(c => <CollectibleItem key={c.id} collectible={c} />)}
       {bubble && <BubbleComponent bubble={bubble} onClick={handleBubblePop} />}
       <ParticleEffect particles={particles} />
+      <ScorePopupEffect scorePopups={scorePopups} />
       <Rosella ref={rosellaRef} />
     </div>
   )

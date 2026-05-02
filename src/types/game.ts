@@ -28,3 +28,11 @@ export interface Particle {
   color?: string   // hex — only used when symbol === 'circle'
   duration: number // ms
 }
+
+export interface ScorePopup {
+  id: string
+  x: number        // px — spawn position (collectible centre x, offset for text)
+  y: number        // px — spawn position (collectible centre y - 30px)
+  points: number   // 1 | 3 | 5
+  duration: number // ms — 600
+}
