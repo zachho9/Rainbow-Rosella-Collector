@@ -12,7 +12,7 @@ import { useGameLoop } from '../hooks/useGameLoop'
 import { isColliding } from '../utils/collision'
 import { pickCollectibleType, spawnPosition } from '../utils/spawn'
 import { spawnCollectSparkle, spawnBubbleConfetti } from '../utils/particles'
-import { playSound, stopSound } from '../utils/sound'
+import { playSound } from '../utils/sound'
 import type { Collectible, Bubble, Particle, CollectibleType } from '../types/game'
 
 const LERP = 0.18
@@ -65,14 +65,12 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
   const mountedRef = useRef(true)
   const bubbleTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
-  useEffect(() => () => { mountedRef.current = false }, [])
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
   useEffect(() => { collectiblesRef.current = collectibles }, [collectibles])
   useEffect(() => { bubbleRef.current = bubble }, [bubble])
-
-  useEffect(() => {
-    playSound('music', mutedRef.current)
-    return () => stopSound('music')
-  }, [mutedRef])
 
   const addParticles = useCallback((newPs: Particle[]) => {
     setParticles(prev => [...prev, ...newPs])
@@ -152,7 +150,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
     pos.y += (target.y - pos.y) * LERP
     if (rosellaRef.current) {
       rosellaRef.current.style.transform =
-        `translate(${Math.round(pos.x - 35)}px, ${Math.round(pos.y - 35)}px)`
+        `translate(${Math.round(pos.x - 45)}px, ${Math.round(pos.y - 45)}px)`
     }
 
     const rosX = pos.x

@@ -2,10 +2,10 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 70px;
-  height: 70px;
-  font-size: 64px;
-  line-height: 70px;
+  width: 90px;
+  height: 90px;
+  font-size: 80px;
+  line-height: 90px;
   text-align: center;
   pointer-events: none;
   z-index: 20;

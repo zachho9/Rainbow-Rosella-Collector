@@ -13,5 +13,5 @@ html, body, #root {
 }
 
 body {
-  cursor: none;
+  cursor: default;
 }

@@ -1,9 +1,8 @@
 .container {
   position: fixed;
   top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 180px);
+  left: 16px;
+  right: 130px;
   background: white;
   border-radius: 20px;
   padding: 5px 10px;
@@ -14,9 +13,17 @@
   z-index: 30;
 }
 
-.bar {
+.barWrapper {
   flex: 1;
+  position: relative;
   height: 14px;
+}
+
+.bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
   border-radius: 10px;
   background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #845ec2);
   transition: width 1s linear;

@@ -11,10 +11,12 @@ export default function TimerBar({ timeLeft, total = 60 }: Props) {
 
   return (
     <div className={styles.container}>
-      <div
-        className={`${styles.bar} ${urgent ? styles.barUrgent : ''}`}
-        style={{ width: `${pct}%` }}
-      />
+      <div className={styles.barWrapper}>
+        <div
+          className={`${styles.bar} ${urgent ? styles.barUrgent : ''}`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
       <span className={styles.label}>{timeLeft}s</span>
     </div>
   )
