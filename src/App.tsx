@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import type { Screen } from './types/game'
 import { useHighScore } from './hooks/useHighScore'
-import { playSound } from './utils/sound'
+import { playSound, startMusicMuted, unmuteMusic } from './utils/sound'
 import StartScreen from './components/StartScreen'
 import GameScreen from './components/GameScreen'
 import ResultsScreen from './components/ResultsScreen'
@@ -13,23 +13,25 @@ export default function App() {
   const [highScore, maybeUpdateHighScore] = useHighScore()
   const mutedRef = useRef(false)
 
-  // Attempt autoplay on mount (works when browser allows it, e.g. repeat visits).
-  // The click listener below handles the case where autoplay is blocked.
+  // Start music muted on mount — muted autoplay is always allowed by browsers.
   useEffect(() => {
-    playSound('music', false)
+    startMusicMuted()
   }, [])
 
-  // Fallback: start music on the first unmuted click anywhere.
-  // Listener stays alive until music actually starts (not removed on mute-button click).
+  // Unmute on first mousemove or click (whichever comes first), unless user muted.
+  // mousemove fires as soon as the cursor enters the window — no click needed.
   useEffect(() => {
-    const startMusic = () => {
-      if (!mutedRef.current) {
-        playSound('music', false)
-        document.removeEventListener('click', startMusic)
-      }
+    const handleFirstInteraction = () => {
+      if (!mutedRef.current) unmuteMusic()
+      document.removeEventListener('mousemove', handleFirstInteraction)
+      document.removeEventListener('click', handleFirstInteraction)
     }
-    document.addEventListener('click', startMusic)
-    return () => document.removeEventListener('click', startMusic)
+    document.addEventListener('mousemove', handleFirstInteraction)
+    document.addEventListener('click', handleFirstInteraction)
+    return () => {
+      document.removeEventListener('mousemove', handleFirstInteraction)
+      document.removeEventListener('click', handleFirstInteraction)
+    }
   }, [])
 
   const handlePlay = useCallback(() => setScreen('playing'), [])
