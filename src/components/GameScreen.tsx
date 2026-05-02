@@ -25,6 +25,7 @@ const SPAWN_DELAY = () => 500 + Math.random() * 500
 const BUBBLE_EXPIRE_MS = 8000
 const BUBBLE_INTERVAL_MIN = 10000
 const BUBBLE_INTERVAL_RANGE = 5000
+const COLLECTIBLE_EXPIRE_MS = 13000
 
 function rid() { return Math.random().toString(36).slice(2, 10) }
 
@@ -34,7 +35,7 @@ function makeCollectible(existing: Collectible[], rosX: number, rosY: number): C
     existing, rosellaX: rosX, rosellaY: rosY,
     vpW: window.innerWidth, vpH: window.innerHeight,
   })
-  return { id: rid(), type, x, y, points }
+  return { id: rid(), type, x, y, points, spawnedAt: Date.now() }
 }
 
 interface Props {
@@ -62,6 +63,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
   const collectiblesRef = useRef<Collectible[]>([])
   const bubbleRef = useRef<Bubble | null>(null)
   const collectingIds = useRef(new Set<string>())
+  const expiringIds = useRef(new Set<string>())
   const mountedRef = useRef(true)
   const bubbleTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
@@ -138,6 +140,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
           points: type === 'heart' ? 1 : type === 'star' ? 3 : 5,
           x: Math.min(90, Math.max(8, b.x + (Math.random() - 0.5) * 40)),
           y: Math.min(80, Math.max(15, b.y + (Math.random() - 0.5) * 40)),
+          spawnedAt: Date.now(),
         }
       })
       return [...prev, ...burst]  // additive — don't remove existing collectibles
@@ -157,10 +160,19 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
 
     const rosX = pos.x
     const rosY = pos.y
+    const now = Date.now()
     for (const item of collectiblesRef.current) {
       if (collectingIds.current.has(item.id)) continue
+      if (expiringIds.current.has(item.id)) continue
       const itemX = (item.x / 100) * window.innerWidth
       const itemY = (item.y / 100) * window.innerHeight
+      if (now - item.spawnedAt >= COLLECTIBLE_EXPIRE_MS) {
+        expiringIds.current.add(item.id)
+        setCollectibles(prev => prev.filter(c => c.id !== item.id))
+        spawnReplacement()
+        setTimeout(() => expiringIds.current.delete(item.id), 2000)
+        continue
+      }
       if (isColliding(rosX, rosY, ROSELLA_RADIUS, itemX, itemY, COLLECTIBLE_RADIUS)) {
         collectingIds.current.add(item.id)
         playSound('collect', mutedRef.current)
@@ -174,7 +186,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
     }
 
     const b = bubbleRef.current
-    if (b && !b.fading && Date.now() - b.spawnedAt >= BUBBLE_EXPIRE_MS) {
+    if (b && !b.fading && now - b.spawnedAt >= BUBBLE_EXPIRE_MS) {
       bubbleRef.current = { ...b, fading: true }  // break re-entry immediately
       setBubble(prev => prev ? { ...prev, fading: true } : null)
       setTimeout(() => { if (mountedRef.current) setBubble(null) }, 500)

@@ -8,6 +8,7 @@ export interface Collectible {
   x: number        // % of viewport width
   y: number        // % of viewport height
   points: number   // heart=1, star=3, gem=5
+  spawnedAt: number  // Date.now() — used for expiry
 }
 
 export interface Bubble {

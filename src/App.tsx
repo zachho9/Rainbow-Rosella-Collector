@@ -1,6 +1,7 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import type { Screen } from './types/game'
 import { useHighScore } from './hooks/useHighScore'
+import { playSound } from './utils/sound'
 import StartScreen from './components/StartScreen'
 import GameScreen from './components/GameScreen'
 import ResultsScreen from './components/ResultsScreen'
@@ -11,6 +12,16 @@ export default function App() {
   const [isNewHighScore, setIsNewHighScore] = useState(false)
   const [highScore, maybeUpdateHighScore] = useHighScore()
   const mutedRef = useRef(false)
+
+  // Start music on the first user click anywhere — browser autoplay requires a gesture
+  useEffect(() => {
+    const startMusic = () => {
+      playSound('music', mutedRef.current)
+      document.removeEventListener('click', startMusic)
+    }
+    document.addEventListener('click', startMusic)
+    return () => document.removeEventListener('click', startMusic)
+  }, [])
 
   const handlePlay = useCallback(() => setScreen('playing'), [])
 
