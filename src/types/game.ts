@@ -36,3 +36,8 @@ export interface ScorePopup {
   points: number   // 1 | 3 | 5
   duration: number // ms — 600
 }
+
+export interface LeaderboardEntry {
+  score: number
+  timestamp: number  // Date.now()
+}
