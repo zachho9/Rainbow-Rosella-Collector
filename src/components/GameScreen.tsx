@@ -165,7 +165,7 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
     pos.y += (target.y - pos.y) * LERP
     if (rosellaRef.current) {
       rosellaRef.current.style.transform =
-        `translate(${Math.round(pos.x - 45)}px, ${Math.round(pos.y - 45)}px)`
+        `translate(${Math.round(pos.x - 53)}px, ${Math.round(pos.y - 53)}px)`
     }
 
     const rosX = pos.x
