@@ -1,12 +1,14 @@
 export type SoundKey = 'collect' | 'bubble-pop' | 'game-start' | 'game-end' | 'high-score' | 'music'
 
+const BASE = import.meta.env.BASE_URL
+
 const FILES: Record<SoundKey, string> = {
-  'collect':     '/sounds/collect.mp3',
-  'bubble-pop':  '/sounds/bubble-pop.mp3',
-  'game-start':  '/sounds/game-start.mp3',
-  'game-end':    '/sounds/game-end.mp3',
-  'high-score':  '/sounds/high-score.mp3',
-  'music':       '/sounds/music.mp3',
+  'collect':     `${BASE}sounds/collect.mp3`,
+  'bubble-pop':  `${BASE}sounds/bubble-pop.mp3`,
+  'game-start':  `${BASE}sounds/game-start.mp3`,
+  'game-end':    `${BASE}sounds/game-end.mp3`,
+  'high-score':  `${BASE}sounds/high-score.mp3`,
+  'music':       `${BASE}sounds/music.mp3`,
 }
 
 const cache: Partial<Record<SoundKey, HTMLAudioElement>> = {}
