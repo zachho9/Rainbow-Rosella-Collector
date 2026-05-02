@@ -1,4 +1,4 @@
-import type { Particle } from '../types/game'
+import type { Particle, ScorePopup } from '../types/game'
 
 const PASTELS = ['#FFADAD', '#FFD6A5', '#FDFFB6', '#CAFFBF', '#9BF6FF', '#A0C4FF', '#BDB2FF']
 
@@ -29,4 +29,14 @@ export function spawnBubbleConfetti(x: number, y: number): Particle[] {
     color: PASTELS[Math.floor(Math.random() * PASTELS.length)],
     duration: 500 + Math.random() * 150,
   }))
+}
+
+export function spawnScorePopup(x: number, y: number, points: number): ScorePopup {
+  return {
+    id: Math.random().toString(36).slice(2, 10),
+    x: x - 20,   // offset left ~half text width to visually centre
+    y: y - 30,   // 30px above collectible centre
+    points,
+    duration: 600,
+  }
 }
