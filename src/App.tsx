@@ -13,9 +13,14 @@ export default function App() {
   const [highScore, maybeUpdateHighScore] = useHighScore()
   const mutedRef = useRef(false)
 
-  // Start music on the first unmuted user click — browser autoplay requires a gesture.
-  // Only remove the listener once music actually starts; if the first click was the
-  // mute button (which sets mutedRef before this listener fires), keep listening.
+  // Attempt autoplay on mount (works when browser allows it, e.g. repeat visits).
+  // The click listener below handles the case where autoplay is blocked.
+  useEffect(() => {
+    playSound('music', false)
+  }, [])
+
+  // Fallback: start music on the first unmuted click anywhere.
+  // Listener stays alive until music actually starts (not removed on mute-button click).
   useEffect(() => {
     const startMusic = () => {
       if (!mutedRef.current) {
@@ -36,8 +41,15 @@ export default function App() {
     setScreen('results')
   }, [maybeUpdateHighScore])
 
-  const handlePlayAgain = useCallback(() => setScreen('playing'), [])
-  const handleHome = useCallback(() => setScreen('start'), [])
+  const handlePlayAgain = useCallback(() => {
+    playSound('music', mutedRef.current)
+    setScreen('playing')
+  }, [mutedRef])
+
+  const handleHome = useCallback(() => {
+    playSound('music', mutedRef.current)
+    setScreen('start')
+  }, [mutedRef])
 
   return (
     <>
