@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { MutableRefObject } from 'react'
 import Background from './Background'
+import LeaderboardModal from './LeaderboardModal'
 import { playSound, stopSound } from '../utils/sound'
 import styles from './StartScreen.module.css'
 
@@ -12,6 +13,7 @@ interface Props {
 
 export default function StartScreen({ highScore, mutedRef, onPlay }: Props) {
   const [muted, setMuted] = useState(mutedRef.current) // eslint-disable-line react-hooks/refs
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false)
 
   const toggleMute = () => {
     mutedRef.current = !mutedRef.current
@@ -40,7 +42,11 @@ export default function StartScreen({ highScore, mutedRef, onPlay }: Props) {
         <h1 className={styles.title}>Rainbow Rosella</h1>
         <div className={styles.mascot}>🦜</div>
         <button className={styles.playBtn} onClick={handlePlay}>▶ Play!</button>
+        <button className={styles.leaderboardBtn} onClick={() => setLeaderboardOpen(true)}>
+          🏆 Scores
+        </button>
       </div>
+      <LeaderboardModal open={leaderboardOpen} onClose={() => setLeaderboardOpen(false)} />
     </>
   )
 }
