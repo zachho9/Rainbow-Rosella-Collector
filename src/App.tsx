@@ -1,7 +1,6 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import type { Screen } from './types/game'
 import { useHighScore } from './hooks/useHighScore'
-import { playSound, stopSound } from './utils/sound'
 import StartScreen from './components/StartScreen'
 import GameScreen from './components/GameScreen'
 import ResultsScreen from './components/ResultsScreen'
@@ -12,11 +11,6 @@ export default function App() {
   const [isNewHighScore, setIsNewHighScore] = useState(false)
   const [highScore, maybeUpdateHighScore] = useHighScore()
   const mutedRef = useRef(false)
-
-  useEffect(() => {
-    playSound('music', mutedRef.current)
-    return () => stopSound('music')
-  }, [])
 
   const handlePlay = useCallback(() => setScreen('playing'), [])
 

@@ -8,8 +8,8 @@ interface Props {
 }
 
 export default function BubbleComponent({ bubble, onClick }: Props) {
-  const tx = `${(bubble.x / 100) * window.innerWidth - 36}px`
-  const ty = `${(bubble.y / 100) * window.innerHeight - 36}px`
+  const tx = `${(bubble.x / 100) * window.innerWidth - 55}px`
+  const ty = `${(bubble.y / 100) * window.innerHeight - 55}px`
   return (
     <div
       className={`${styles.bubble} ${bubble.fading ? styles.fading : ''}`}

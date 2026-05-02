@@ -24,6 +24,7 @@ export default function StartScreen({ highScore, mutedRef, onPlay }: Props) {
   }
 
   const handlePlay = () => {
+    playSound('music', mutedRef.current)
     playSound('game-start', mutedRef.current)
     onPlay()
   }

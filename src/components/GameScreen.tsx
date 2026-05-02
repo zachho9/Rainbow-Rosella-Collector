@@ -128,17 +128,19 @@ export default function GameScreen({ mutedRef, onGameEnd }: Props) {
     const by = (b.y / 100) * window.innerHeight
     addParticles(spawnBubbleConfetti(bx, by))
     setBubble(null)
-    const count = 3 + Math.floor(Math.random() * 3)
+    const count = 6 + Math.floor(Math.random() * 4)  // 6–9
     setCollectibles(prev => {
       const burst: Collectible[] = Array.from({ length: count }, () => {
-        const type: CollectibleType = Math.random() < 0.5 ? 'heart' : 'star'
+        const r = Math.random()
+        const type: CollectibleType = r < 0.5 ? 'heart' : r < 0.8 ? 'star' : 'gem'
         return {
-          id: rid(), type, points: type === 'heart' ? 1 : 3,
-          x: Math.min(92, Math.max(8, b.x + (Math.random() - 0.5) * 14)),
-          y: Math.min(82, Math.max(15, b.y + (Math.random() - 0.5) * 14)),
+          id: rid(), type,
+          points: type === 'heart' ? 1 : type === 'star' ? 3 : 5,
+          x: Math.min(90, Math.max(8, b.x + (Math.random() - 0.5) * 40)),
+          y: Math.min(80, Math.max(15, b.y + (Math.random() - 0.5) * 40)),
         }
       })
-      return [...prev.slice(0, MAX_COLLECTIBLES - count), ...burst]
+      return [...prev, ...burst]  // additive — don't remove existing collectibles
     })
   }, [mutedRef, addParticles])
 
