@@ -20,19 +20,24 @@ export default function App() {
     startMusicMuted()
   }, [])
 
-  // Unmute on first mousemove or click (whichever comes first), unless user muted.
-  // mousemove fires as soon as the cursor enters the window — no click needed.
+  // Unmute on first mousemove. Keep click listener alive as a fallback: if
+  // startMusicMuted() was rejected (silent in some prod environments), a click
+  // provides a real user-gesture context that allows play() to succeed.
   useEffect(() => {
-    const handleFirstInteraction = () => {
+    const handleMouseMove = () => {
       if (!mutedRef.current) unmuteMusic()
-      document.removeEventListener('mousemove', handleFirstInteraction)
-      document.removeEventListener('click', handleFirstInteraction)
+      document.removeEventListener('mousemove', handleMouseMove)
     }
-    document.addEventListener('mousemove', handleFirstInteraction)
-    document.addEventListener('click', handleFirstInteraction)
+    const handleClick = () => {
+      if (!mutedRef.current) unmuteMusic()
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('click', handleClick)
+    }
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('click', handleClick)
     return () => {
-      document.removeEventListener('mousemove', handleFirstInteraction)
-      document.removeEventListener('click', handleFirstInteraction)
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('click', handleClick)
     }
   }, [])
 
