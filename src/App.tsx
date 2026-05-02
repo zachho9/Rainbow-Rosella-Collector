@@ -13,11 +13,15 @@ export default function App() {
   const [highScore, maybeUpdateHighScore] = useHighScore()
   const mutedRef = useRef(false)
 
-  // Start music on the first user click anywhere — browser autoplay requires a gesture
+  // Start music on the first unmuted user click — browser autoplay requires a gesture.
+  // Only remove the listener once music actually starts; if the first click was the
+  // mute button (which sets mutedRef before this listener fires), keep listening.
   useEffect(() => {
     const startMusic = () => {
-      playSound('music', mutedRef.current)
-      document.removeEventListener('click', startMusic)
+      if (!mutedRef.current) {
+        playSound('music', false)
+        document.removeEventListener('click', startMusic)
+      }
     }
     document.addEventListener('click', startMusic)
     return () => document.removeEventListener('click', startMusic)
