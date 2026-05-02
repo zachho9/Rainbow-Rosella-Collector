@@ -1,4 +1,4 @@
-# Rosella Collector
+# Rainbow Rosella Collector
 
 A browser-based collection game built for kids. Move the mouse to guide a Rainbow Rosella (🦜) around the screen and collect hearts, stars, and gems before the timer runs out.
 
@@ -12,7 +12,7 @@ npm run dev        # dev server at localhost:5173
 ```bash
 npm run build      # TypeScript compile + Vite bundle
 npm run preview    # serve built output at localhost:4173
-npm test           # unit tests (watch mode)
+npm run test       # unit tests (watch mode)
 ```
 
 ## How to Play
