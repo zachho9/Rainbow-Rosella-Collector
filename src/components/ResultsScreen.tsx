@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import type { MutableRefObject } from 'react'
 import Background from './Background'
+import LeaderboardModal from './LeaderboardModal'
 import { playSound } from '../utils/sound'
 import styles from './ResultsScreen.module.css'
 
@@ -16,6 +17,8 @@ interface Props {
 }
 
 export default function ResultsScreen({ score, highScore, isNewHighScore, mutedRef, onPlayAgain, onHome }: Props) {
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false)
+
   useEffect(() => {
     if (isNewHighScore) playSound('high-score', mutedRef.current)
   }, [isNewHighScore, mutedRef])
@@ -41,7 +44,11 @@ export default function ResultsScreen({ score, highScore, isNewHighScore, mutedR
         }
         <button className={styles.playAgainBtn} onClick={onPlayAgain}>▶ Play Again</button>
         <button className={styles.homeBtn} onClick={onHome}>🏠 Home</button>
+        <button className={styles.leaderboardBtn} onClick={() => setLeaderboardOpen(true)}>
+          🏆 Scores
+        </button>
       </div>
+      <LeaderboardModal open={leaderboardOpen} onClose={() => setLeaderboardOpen(false)} />
     </>
   )
 }
