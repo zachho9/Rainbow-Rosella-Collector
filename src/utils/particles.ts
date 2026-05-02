@@ -33,7 +33,7 @@ export function spawnBubbleConfetti(x: number, y: number): Particle[] {
 
 export function spawnScorePopup(x: number, y: number, points: number): ScorePopup {
   return {
-    id: Math.random().toString(36).slice(2, 10),
+    id: rid(),
     x: x - 20,   // offset left ~half text width to visually centre
     y: y - 30,   // 30px above collectible centre
     points,
