@@ -20,11 +20,31 @@ export function preloadSounds(): void {
   }
 }
 
+// Starts music silently on page load. Muted autoplay is always allowed by browsers.
+// Call unmuteMusic() once the user interacts to make it audible.
+export function startMusicMuted(): void {
+  const src = cache['music']
+  if (!src) return
+  src.muted = true
+  src.currentTime = 0
+  src.play().catch((e) => {
+    if (import.meta.env.DEV) console.warn('[sound] muted start failed:', e)
+  })
+}
+
+// Unmutes the music if it is currently playing. No-op if paused (user muted it).
+export function unmuteMusic(): void {
+  const src = cache['music']
+  if (!src || src.paused) return
+  src.muted = false
+}
+
 export function playSound(key: SoundKey, muted: boolean): void {
   if (muted) return
   const src = cache[key]
   if (!src) return
   if (key === 'music') {
+    src.muted = false  // clear muted-autoplay state before explicit play
     src.currentTime = 0
     src.play().catch((e) => {
       if (import.meta.env.DEV) console.warn('[sound] play failed:', key, e)
