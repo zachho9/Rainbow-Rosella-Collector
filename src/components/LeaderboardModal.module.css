@@ -1,0 +1,108 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.card {
+  background: linear-gradient(180deg, #B8E5F5 0%, #E0F4FA 100%);
+  border-radius: 24px;
+  padding: 16px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.panel {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 24px;
+  color: #2C3E50;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  background: #F9F9F9;
+}
+
+.rowFirst {
+  background: #FFF5F8;
+}
+
+.rank {
+  font-size: 22px;
+  min-width: 28px;
+  text-align: center;
+}
+
+.rankNum {
+  font-size: 14px;
+  font-weight: 700;
+  color: #bbbbbb;
+  min-width: 28px;
+  text-align: center;
+}
+
+.score {
+  font-size: 18px;
+  font-weight: 900;
+  color: #2C3E50;
+  min-width: 56px;
+}
+
+.scoreFirst {
+  color: #FF8FA3;
+}
+
+.time {
+  font-size: 12px;
+  color: #aaaaaa;
+  flex: 1;
+}
+
+.empty {
+  text-align: center;
+  color: #aaaaaa;
+  font-size: 15px;
+  padding: 24px 0;
+}
+
+.closeBtn {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 18px;
+  color: #ffffff;
+  background: #FF8FA3;
+  border: none;
+  border-radius: 20px;
+  padding: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #E66B82;
+  transition: transform 0.08s;
+}
+
+.closeBtn:active {
+  box-shadow: none;
+  transform: translateY(4px);
+}
