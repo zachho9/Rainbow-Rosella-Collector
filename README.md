@@ -1,26 +1,40 @@
 # Rainbow Rosella Collector
 
-A browser-based collection game built for kids. Move the mouse to guide a Rainbow Rosella (🦜) around the screen and collect hearts, stars, and gems before the timer runs out.
+A browser-based collection game built for young kids. Move the mouse to guide a Rainbow Rosella (🦜) around the screen and collect hearts, stars, and gems before the timer runs out.
 
-## Getting Started
+## Running Locally
 
 ```bash
 npm install
 npm run dev        # dev server at localhost:5173
 ```
 
+To verify the production build locally before pushing:
+
 ```bash
 npm run build      # TypeScript compile + Vite bundle
 npm run preview    # serve built output at localhost:4173
+```
+
+Other commands:
+
+```bash
+npm run lint       # ESLint
 npm run test       # unit tests (watch mode)
 ```
 
+## GitHub Pages
+
+The live version is automatically deployed at:
+**https://zachho9.github.io/Rainbow-Rosella-Collector/**
+
+
 ## How to Play
 
-- Move the mouse — the rosella follows the cursor
+- Move the mouse, the rosella follows the cursor. Touch screen is not supported for now.
 - Collect items by touching them with the rosella
 - Click pulsing bubbles for bonus items
-- 60-second timer; highest score is saved between sessions
+- 60-second timer. Highest score is saved between sessions
 
 | Item | Points |
 |------|--------|
@@ -32,11 +46,11 @@ npm run test       # unit tests (watch mode)
 
 ```
 src/
-  components/     UI components, each with a co-located CSS Module
+  components/     UI components
   hooks/          useMousePosition, useGameLoop, useHighScore, useLeaderboard
   utils/          collision, spawn, particles, sound
   types/          shared TypeScript types
-public/sounds/    audio assets (collect, bubble-pop, game-start, game-end, high-score, music)
+public/sounds/    audio assets
 docs/             requirements, design spec, implementation plan, bug write-ups
 ```
 
