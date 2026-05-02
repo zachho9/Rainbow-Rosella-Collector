@@ -15,7 +15,10 @@ export function preloadSounds(): void {
   for (const [key, path] of Object.entries(FILES) as [SoundKey, string][]) {
     const el = new Audio(path)
     el.preload = 'auto'
-    if (key === 'music') el.loop = true
+    if (key === 'music') {
+      el.muted = true  // create muted so browsers treat it as always-muted for autoplay
+      el.loop = true
+    }
     cache[key] = el
   }
 }
@@ -28,15 +31,21 @@ export function startMusicMuted(): void {
   src.muted = true
   src.currentTime = 0
   src.play().catch((e) => {
-    if (import.meta.env.DEV) console.warn('[sound] muted start failed:', e)
+    console.warn('[sound] muted start failed:', e)
   })
 }
 
-// Unmutes the music if it is currently playing. No-op if paused (user muted it).
+// Unmutes the music. If it never started (play() was rejected), tries to start it now.
+// Call from a click handler to guarantee user-gesture context for play().
 export function unmuteMusic(): void {
   const src = cache['music']
-  if (!src || src.paused) return
+  if (!src) return
   src.muted = false
+  if (src.paused) {
+    src.play().catch((e) => {
+      console.warn('[sound] unmute play failed:', e)
+    })
+  }
 }
 
 export function playSound(key: SoundKey, muted: boolean): void {
@@ -47,13 +56,13 @@ export function playSound(key: SoundKey, muted: boolean): void {
     src.muted = false  // clear muted-autoplay state before explicit play
     src.currentTime = 0
     src.play().catch((e) => {
-      if (import.meta.env.DEV) console.warn('[sound] play failed:', key, e)
+      console.warn('[sound] play failed:', key, e)
     })
     return
   }
   const clone = src.cloneNode() as HTMLAudioElement
   clone.play().catch((e) => {
-    if (import.meta.env.DEV) console.warn('[sound] play failed:', key, e)
+    console.warn('[sound] play failed:', key, e)
   })
 }
 
