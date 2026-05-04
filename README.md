@@ -1,6 +1,8 @@
 # Rainbow Rosella Collector
 
 A browser-based collection game built for young kids. Move the mouse to guide a Rainbow Rosella (🦜) around the screen and collect hearts, stars, and gems before the timer runs out.
+  
+<img width="1318" height="591" alt="title" src="https://github.com/user-attachments/assets/7ac0dc54-a4f9-4036-b859-319c27aec3c9" />
 
 ## Running Locally
 
